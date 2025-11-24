@@ -7,26 +7,38 @@ const userService = new UserService();
 
 export class UserController {
   getUsers = (_: Request, res: Response) => {
-    const return_users: TUser[] = userService.getAllUsers();
-    return res.status(200).json({
-      data: return_users,
-    });
+    try {
+      const return_users: TUser[] = userService.getAllUsers();
+      return res.status(200).json({
+        data: return_users,
+      });
+    } catch (err: Error | any) {
+      return res.status(500).json({
+        error: err.message ?? "Internal Server Error!",
+      });
+    }
   };
 
   getUserById = (req: Request, res: Response) => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(404).json({ error: "User ID is required!" });
-    }
+    try {
+      const { id } = req.params;
+      if (!id) {
+        return res.status(404).json({ error: "User ID is required!" });
+      }
 
-    const return_user: TUser | undefined = userService.getUserById(id);
-    if (!return_user) {
-      return res.status(404).json({ error: "User not found!" });
-    }
+      const return_user: TUser | undefined = userService.getUserById(id);
+      if (!return_user) {
+        return res.status(404).json({ error: "User not found!" });
+      }
 
-    return res.status(200).json({
-      user: return_user,
-    });
+      return res.status(200).json({
+        user: return_user,
+      });
+    } catch (err: Error | any) {
+      return res.status(500).json({
+        error: err.message ?? "Internal Server Error!",
+      });
+    }
   };
 
   createUser = (req: Request, res: Response) => {
@@ -57,43 +69,55 @@ export class UserController {
   };
 
   updateUser = (req: Request, res: Response) => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(404).json({ error: "User ID is required!" });
-    }
+    try {
+      const { id } = req.params;
+      if (!id) {
+        return res.status(404).json({ error: "User ID is required!" });
+      }
 
-    const deletedUser = userService.deleteUser(id);
-    if (!deletedUser) {
-      return res.status(404).json({ error: "User not found!" });
-    }
+      const deletedUser = userService.deleteUser(id);
+      if (!deletedUser) {
+        return res.status(404).json({ error: "User not found!" });
+      }
 
-    return res.status(200).json({
-      message: "User deleted successfully",
-    });
+      return res.status(200).json({
+        message: "User deleted successfully",
+      });
+    } catch (err: Error | any) {
+      return res.status(500).json({
+        error: err.message ?? "Internal Server Error!",
+      });
+    }
   };
 
   deleteUser = (req: Request, res: Response) => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(404).json({ error: "User ID is required!" });
+    try {
+      const { id } = req.params;
+      if (!id) {
+        return res.status(404).json({ error: "User ID is required!" });
+      }
+
+      const validation = UpdateUserDTO.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(404).json({ errors: validation.error.issues });
+      }
+
+      const { name, email, username, age } = validation.data;
+      const updatedUser: TUser | undefined = userService.updateUser(id, {
+        username,
+        name,
+        email,
+        age,
+      });
+
+      return res.status(200).json({
+        data: updatedUser,
+        message: "User updated successfully!",
+      });
+    } catch (err: Error | any) {
+      return res.status(500).json({
+        error: err.message ?? "Internal Server Error!",
+      });
     }
-
-    const validation = UpdateUserDTO.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(404).json({ errors: validation.error.issues });
-    }
-
-    const { name, email, username, age } = validation.data;
-    const updatedUser: TUser | undefined = userService.updateUser(id, {
-      username,
-      name,
-      email,
-      age,
-    });
-
-    return res.status(200).json({
-      data: updatedUser,
-      message: "User updated successfully!",
-    });
   };
 }
