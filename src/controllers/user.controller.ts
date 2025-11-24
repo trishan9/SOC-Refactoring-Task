@@ -97,22 +97,13 @@ export class UserController {
         return res.status(404).json({ error: "User ID is required!" });
       }
 
-      const validation = UpdateUserDTO.safeParse(req.body);
-      if (!validation.success) {
-        return res.status(404).json({ errors: validation.error.issues });
+      const deletedUser: TUser | undefined = userService.deleteUser(id);
+      if (!deletedUser) {
+        return res.status(404).json({ error: "User not found!" });
       }
 
-      const { name, email, username, age } = validation.data;
-      const updatedUser: TUser | undefined = userService.updateUser(id, {
-        username,
-        name,
-        email,
-        age,
-      });
-
       return res.status(200).json({
-        data: updatedUser,
-        message: "User updated successfully!",
+        message: "User deleted successfully!",
       });
     } catch (err: Error | any) {
       return res.status(500).json({
