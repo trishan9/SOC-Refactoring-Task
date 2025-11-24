@@ -4,6 +4,7 @@ import {
   UserRepository,
 } from "../repositories/user.repository";
 import { TUser } from "../types/user.type";
+import { ApiError } from "../utils/apiError";
 
 const userRepository: IUserRepository = new UserRepository();
 
@@ -21,19 +22,19 @@ export class UserService {
 
     const userExistsById = userRepository.getUserById(newUser.id);
     if (userExistsById) {
-      throw new Error("User with this ID already exists!");
+      throw new ApiError("User with this ID already exists!", 400);
     }
 
     const userExistsByEmail = userRepository.getUserByEmail(newUser.email);
     if (userExistsByEmail) {
-      throw new Error("User with this email already exists!");
+      throw new ApiError("User with this email already exists!", 400);
     }
 
     const userExistsByUsername = userRepository.getUserByUsername(
       newUser.username
     );
     if (userExistsByUsername) {
-      throw new Error("User with this username already exists!");
+      throw new ApiError("User with this username already exists!", 400);
     }
 
     return userRepository.createUser(newUser);
@@ -42,13 +43,13 @@ export class UserService {
   updateUser = (id: string, userData: TUpdateUserDTO): TUser | undefined => {
     const existingUser = userRepository.getUserById(id);
     if (!existingUser) {
-      throw new Error("User not found!");
+      throw new ApiError("User not found!", 404);
     }
 
     if (userData.email) {
       const userExistsByEmail = userRepository.getUserByEmail(userData.email);
       if (userExistsByEmail) {
-        throw new Error("User with this email already exists!");
+        throw new ApiError("User with this email already exists!", 400);
       }
     }
 
@@ -57,7 +58,7 @@ export class UserService {
         userData.username
       );
       if (userExistsByUsername) {
-        throw new Error("User with this username already exists!");
+        throw new ApiError("User with this username already exists!", 400);
       }
     }
 
@@ -72,7 +73,7 @@ export class UserService {
   deleteUser = (id: string): TUser | undefined => {
     const existingUser = userRepository.getUserById(id);
     if (!existingUser) {
-      throw new Error("User not found!");
+      throw new ApiError("User not found!", 400);
     }
 
     return userRepository.deleteUser(id);
