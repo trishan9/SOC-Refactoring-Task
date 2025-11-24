@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { rootRouter } from "./routes/root.route";
-import { errorHandler } from "./middlewares/error.middleware";
+import { errorHandler } from "./middlewares/errorHandler.middleware";
 
 const app = express();
 app.use(bodyParser.json());
