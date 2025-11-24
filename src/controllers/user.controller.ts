@@ -9,6 +9,7 @@ export class UserController {
   getUsers = (_: Request, res: Response) => {
     try {
       const return_users: TUser[] = userService.getAllUsers();
+
       return res.status(200).json({
         data: return_users,
       });
@@ -23,7 +24,7 @@ export class UserController {
     try {
       const { id } = req.params;
       if (!id) {
-        return res.status(404).json({ error: "User ID is required!" });
+        return res.status(400).json({ error: "User ID is required!" });
       }
 
       const return_user: TUser | undefined = userService.getUserById(id);
@@ -45,10 +46,11 @@ export class UserController {
     try {
       const validation = CreateUserDTO.safeParse(req.body);
       if (!validation.success) {
-        return res.status(404).json({ errors: validation.error.issues });
+        return res.status(400).json({ errors: validation.error.issues });
       }
 
       const { id, name, email, username, age } = validation.data;
+
       const newUser: TUser = userService.createUser({
         id,
         username,
@@ -57,7 +59,7 @@ export class UserController {
         age: age || undefined,
       });
 
-      return res.status(200).json({
+      return res.status(201).json({
         data: newUser,
         message: "User created successfully!",
       });
@@ -75,13 +77,19 @@ export class UserController {
         return res.status(404).json({ error: "User ID is required!" });
       }
 
-      const deletedUser = userService.deleteUser(id);
-      if (!deletedUser) {
-        return res.status(404).json({ error: "User not found!" });
+      const validation = UpdateUserDTO.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ errors: validation.error.issues });
       }
 
+      const updatedUser: TUser | undefined = userService.updateUser(
+        id,
+        validation.data
+      );
+
       return res.status(200).json({
-        message: "User deleted successfully",
+        message: "User updated successfully",
+        data: updatedUser,
       });
     } catch (err: Error | any) {
       return res.status(500).json({
@@ -97,10 +105,7 @@ export class UserController {
         return res.status(404).json({ error: "User ID is required!" });
       }
 
-      const deletedUser: TUser | undefined = userService.deleteUser(id);
-      if (!deletedUser) {
-        return res.status(404).json({ error: "User not found!" });
-      }
+      userService.deleteUser(id);
 
       return res.status(200).json({
         message: "User deleted successfully!",

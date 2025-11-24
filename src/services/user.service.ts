@@ -40,29 +40,41 @@ export class UserService {
   };
 
   updateUser = (id: string, userData: TUpdateUserDTO): TUser | undefined => {
-    const updatedUser: TUser = { id, ...userData };
-
-    const userExists = userRepository.getUserById(updatedUser.id);
-    if (!userExists) {
+    const existingUser = userRepository.getUserById(id);
+    if (!existingUser) {
       throw new Error("User not found!");
     }
 
-    const userExistsByEmail = userRepository.getUserByEmail(updatedUser.email);
-    if (userExistsByEmail) {
-      throw new Error("User with this email already exists!");
+    if (userData.email) {
+      const userExistsByEmail = userRepository.getUserByEmail(userData.email);
+      if (userExistsByEmail) {
+        throw new Error("User with this email already exists!");
+      }
     }
 
-    const userExistsByUsername = userRepository.getUserByUsername(
-      updatedUser.username
-    );
-    if (userExistsByUsername) {
-      throw new Error("User with this username already exists!");
+    if (userData.username) {
+      const userExistsByUsername = userRepository.getUserByUsername(
+        userData.username
+      );
+      if (userExistsByUsername) {
+        throw new Error("User with this username already exists!");
+      }
     }
+
+    const updatedUser = {
+      ...existingUser,
+      ...userData,
+    };
 
     return userRepository.updateUser(id, updatedUser);
   };
 
   deleteUser = (id: string): TUser | undefined => {
+    const existingUser = userRepository.getUserById(id);
+    if (!existingUser) {
+      throw new Error("User not found!");
+    }
+
     return userRepository.deleteUser(id);
   };
 }

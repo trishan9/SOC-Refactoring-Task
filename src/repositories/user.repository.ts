@@ -22,9 +22,8 @@ export interface IUserRepository {
   getUserById(id: string): TUser | undefined;
   getUserByEmail(email: string): TUser | undefined;
   getUserByUsername(username: string): TUser | undefined;
-  getUserById(id: string): TUser | undefined;
   createUser(user: TUser): TUser;
-  updateUser(id: string, user: TUser): TUser | undefined;
+  updateUser(id: string, user: Partial<TUser>): TUser | undefined;
   deleteUser(id: string): TUser | undefined;
 }
 
@@ -50,10 +49,12 @@ export class UserRepository implements IUserRepository {
     return user;
   }
 
-  updateUser(id: string, user: TUser): TUser | undefined {
+  updateUser(id: string, user: Partial<TUser>): TUser | undefined {
     const userIndex = users.findIndex((u) => u.id === id);
+    if (userIndex === -1) return undefined;
 
     users[userIndex] = {
+      ...users[userIndex],
       ...user,
     };
 

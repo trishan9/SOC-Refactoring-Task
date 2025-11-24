@@ -8,11 +8,13 @@ export const CreateUserDTO = userSchema.pick({
   name: true,
   age: true,
 });
-export const UpdateUserDTO = userSchema.pick({
+
+export const UpdateUserDTO = userSchema.partial().pick({
   username: true,
   email: true,
   name: true,
   age: true,
 });
+
 export type TCreateUserDTO = z.infer<typeof CreateUserDTO>;
 export type TUpdateUserDTO = z.infer<typeof UpdateUserDTO>;

@@ -5,7 +5,7 @@ export const userSchema = z.object({
   username: z
     .string()
     .min(1, { message: "Username is required" })
-    .min(5, { message: "Book Title must be greater than 5 characters" }),
+    .min(5, { message: "Username must be at least 5 characters" }),
   email: z.email().min(1, { message: "Email is required" }),
   name: z.string().min(1, { message: "Name is required" }),
   age: z.number().optional(),
